@@ -12,8 +12,8 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-
 RUN wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | apt-key add -
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev nodejs yarn imagemagick apt-utils apt-transport-https ca-certificates -y
-RUN apt-get -y -q install software-properties-common && apt-get -y -q install postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev htop
+RUN apt-get update && apt-get install vim git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev nodejs yarn imagemagick apt-utils apt-transport-https ca-certificates -y
+RUN apt-get -y -q install software-properties-common && apt-get -y -q install postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 libpq-dev libjemalloc-dev
 
 RUN bash -l -c 'ln -fs /usr/share/zoneinfo/America/Mexico_City /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata'
 
@@ -27,7 +27,7 @@ RUN echo 'gem: --no-rdoc --no-ri' >> ~/.gemrc
 
 ARG REQUESTED_RUBY_VERSION="2.4.4"
 
-RUN if test -n "$REQUESTED_RUBY_VERSION" -a ! -x /rbenv/versions/$REQUESTED_RUBY_VERSION/bin/ruby; then (cd /rbenv/plugins/ruby-build  && git pull && rbenv install -s $REQUESTED_RUBY_VERSION) && rbenv global $REQUESTED_RUBY_VERSION && apt-get clean && rm -f /var/lib/apt/lists/*_*; fi
+RUN if test -n "$REQUESTED_RUBY_VERSION" -a ! -x /rbenv/versions/$REQUESTED_RUBY_VERSION/bin/ruby; then (cd /rbenv/plugins/ruby-build  && git pull && RUBY_CONFIGURE_OPTS=--with-jemalloc rbenv install -s $REQUESTED_RUBY_VERSION) && rbenv global $REQUESTED_RUBY_VERSION && apt-get clean && rm -f /var/lib/apt/lists/*_*; fi
 RUN bash -l -c 'gem install bundler -v 1.17.3'
 RUN bash -l -c 'bundle config --global silence_root_warning 1'
 COPY Gemfile /root/Gemfile
